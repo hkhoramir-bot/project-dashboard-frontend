@@ -2,37 +2,22 @@
 
 // ... (ایمپورت‌های قبلی)
 import MainLayout from './layouts/MainLayout'; // 💡 ایمپورت MainLayout جدید
-
-// کامپوننت برای محافظت از مسیرها (بدون تغییر)
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    if (!AuthService.getToken()) {
-        return <Navigate to="/login" replace />; 
-    }
-    // 💡 تمام صفحات محافظت شده را داخل MainLayout قرار می‌دهیم
-    return <MainLayout>{children}</MainLayout>; 
-};
+import CreateProjectPage from './pages/Projects/CreateProjectPage'; // 💡 ایمپورت صفحه جدید
 
 const App: React.FC = () => {
     return (
-        <BrowserRouter>
-            <Routes>
-                {/* مسیرهای عمومی */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+            <BrowserRouter>
+                <Routes>
+                    {/* ... (مسیرهای عمومی و محافظت شده قبلی) */}
+                    
+                    {/* 💡 مسیر ایجاد پروژه جدید */}
+                    <Route path="/projects/new" element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>} /> 
 
-                {/* مسیرهای محافظت شده (اکنون از طریق ProtectedRoute به MainLayout منتقل می‌شوند) */}
-                <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
-                
-                {/* اضافه کردن مسیرهای جدید برای سایدبار */}
-                <Route path="/projects" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} /> 
-                <Route path="/team" element={<ProtectedRoute><h1>مدیریت تیم (در دست ساخت)</h1></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute><h1>گزارش‌ها (در دست ساخت)</h1></ProtectedRoute>} />
-                <Route path="/timeline" element={<ProtectedRoute><h1>زمان‌بندی (در دست ساخت)</h1></ProtectedRoute>} />
-
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </BrowserRouter>
+                    {/* ... (سایر مسیرها) */}
+                </Routes>
+            </BrowserRouter>
+        </div>
     );
 };
 

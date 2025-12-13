@@ -4,7 +4,7 @@ import axios from 'axios';
 import { User } from '../types/models';
 
 // ⚠️⚠️ این آدرس را با آدرس نهایی بک‌اند (Render URL) خود جایگزین کنید!
-const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com'; 
+const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1'; 
 const API = axios.create({ baseURL: BASE_URL });
 
 export const AuthService = {
