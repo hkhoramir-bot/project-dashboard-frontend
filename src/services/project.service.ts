@@ -1,7 +1,7 @@
 // src/services/project.service.ts
 
 import axios from 'axios';
-import { Project } from '../types/models';
+import type { Project } from '../types/models';
 
 // آدرس بک‌اند رندر شما
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1';
@@ -12,20 +12,32 @@ const API = axios.create({ baseURL: BASE_URL });
 API.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
+        config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
 
-// src/services/project.service.ts
-
-// ... (ایمپورت‌ها و تنظیمات BASE_URL و API همان می‌ماند)
-
 export const ProjectService = {
-    // ... (متدهای قبلی)
+    // ۱. گرفتن لیست پروژه‌ها
+    getProjects: async (): Promise<Project[]> => {
+        const response = await API.get('/projects');
+        return response.data;
+    },
+
+    // ۲. گرفتن پروژه با آیدی
+    getProjectById: async (id: number): Promise<Project> => {
+        const response = await API.get(`/projects/${id}`);
+        return response.data;
+    },
 
     // ۳. ایجاد پروژه جدید
-    createProject: async (name: string, description: string, startDate: Date, endDate: Date) => {
+    createProject: async (
+        name: string,
+        description: string,
+        startDate: Date,
+        endDate: Date
+    ): Promise<Project> => {
         const response = await API.post('/projects', {
             name,
             description,
