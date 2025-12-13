@@ -1,24 +1,15 @@
-// src/App.tsx
+// src/App.tsx (تغییرات فقط در بخش ProtectedRoute)
 
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthService } from './services/auth.service';
+// ... (ایمپورت‌های قبلی)
+import MainLayout from './layouts/MainLayout'; // 💡 ایمپورت MainLayout جدید
 
-// --- صفحات ---
-import LoginPage from './pages/Auth/LoginPage';
-// نیاز به ساخت:
-const DashboardPage = () => <h1>داشبورد اصلی (نیاز به پیاده‌سازی)</h1>; 
-const RegisterPage = () => <h1>صفحه ثبت نام (نیاز به پیاده‌سازی)</h1>; 
-// ---
-
-// کامپوننت برای محافظت از مسیرها: اگر توکن نباشد، به صفحه ورود هدایت می‌کند
+// کامپوننت برای محافظت از مسیرها (بدون تغییر)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // چک کردن وجود توکن
     if (!AuthService.getToken()) {
-        // Replace برای حذف مسیر فعلی از History مرورگر
         return <Navigate to="/login" replace />; 
     }
-    return <>{children}</>;
+    // 💡 تمام صفحات محافظت شده را داخل MainLayout قرار می‌دهیم
+    return <MainLayout>{children}</MainLayout>; 
 };
 
 const App: React.FC = () => {
@@ -29,16 +20,17 @@ const App: React.FC = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
 
-                {/* مسیرهای محافظت شده (باید لاگین شده باشید) */}
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardPage />
-                        </ProtectedRoute>
-                    }
-                />
-                {/* /projects/:id و سایر مسیرهای مدیریت پروژه در اینجا قرار می‌گیرند */}
+                {/* مسیرهای محافظت شده (اکنون از طریق ProtectedRoute به MainLayout منتقل می‌شوند) */}
+                <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
+                
+                {/* اضافه کردن مسیرهای جدید برای سایدبار */}
+                <Route path="/projects" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} /> 
+                <Route path="/team" element={<ProtectedRoute><h1>مدیریت تیم (در دست ساخت)</h1></ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute><h1>گزارش‌ها (در دست ساخت)</h1></ProtectedRoute>} />
+                <Route path="/timeline" element={<ProtectedRoute><h1>زمان‌بندی (در دست ساخت)</h1></ProtectedRoute>} />
+
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
     );
