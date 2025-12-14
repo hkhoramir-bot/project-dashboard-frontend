@@ -1,5 +1,3 @@
-// src/pages/Auth/LoginPage.tsx (نسخه Tailwind)
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../../services/auth.service';
@@ -14,19 +12,23 @@ const LoginPage: React.FC = () => {
         e.preventDefault();
         setError(null);
         try {
-            await AuthService.login(email, password);
-            navigate('/'); 
+            const result = await AuthService.login(email, password);
+
+            if (result.access_token) {
+                // هدایت به داشبورد بعد از ورود موفق
+                navigate('/', { replace: true });
+            } else {
+                setError('ایمیل یا رمز عبور اشتباه است.');
+            }
         } catch (err) {
             console.error(err);
-            setError('ورود ناموفق بود. ایمیل یا رمز عبور اشتباه است.');
+            setError('خطا در ورود به سیستم.');
         }
     };
 
     return (
-        // 💡 استفاده از کلاس‌های Tailwind برای مرکز قرارگیری و پس‌زمینه
         <div className="flex justify-center items-center min-h-screen bg-gray-100 rtl">
             <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl">
-                
                 <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">ورود به داشبورد</h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -40,7 +42,6 @@ const LoginPage: React.FC = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            // 💡 کلاس‌های Tailwind برای فیلد
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                         />
                     </div>
@@ -53,7 +54,6 @@ const LoginPage: React.FC = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            // 💡 کلاس‌های Tailwind برای فیلد
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                         />
                     </div>
@@ -63,7 +63,6 @@ const LoginPage: React.FC = () => {
                     </button>
                 </form>
                 
-                {/* 💡 این بخش اکنون به درستی در JSX قرار گرفته است */}
                 <p className="mt-4 text-center text-sm text-gray-600">
                     حساب کاربری ندارید؟ 
                     <button 
@@ -74,7 +73,6 @@ const LoginPage: React.FC = () => {
                         ثبت نام کنید
                     </button>
                 </p>
-
             </div>
         </div>
     );
