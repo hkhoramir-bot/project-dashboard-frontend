@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 💡 ایمپورت useNavigate برای مسیریابی
-import { Project } from '../../types/models';
+// 💡 اصلاح شده: خط ایمپورت Project حذف شد، زیرا اکنون Global است
+// import { Project } from '../../types/models'; 
 import { ProjectService } from '../../services/project.service';
 import ProjectCard from '../../components/ProjectCard';
 
 const DashboardPage: React.FC = () => {
+    // 💡 Type Project اکنون Global است
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -16,14 +18,11 @@ const DashboardPage: React.FC = () => {
         const fetchProjects = async () => {
             try {
                 // 💡 فرض می‌کنیم getAllProjects در ProjectService وجود دارد.
-                const data = await ProjectService.getAllProjects();
+                const data = await ProjectService.getProjects(); // نام متد را به getProjects اصلاح کردیم
                 setProjects(data);
             } catch (err) {
-                // اگر خطا 401 باشد، کاربر را به صفحه ورود هدایت می‌کنیم
-                // اگرچه ProtectedRoute باید این کار را انجام دهد، اما اینجا برای اطمینان بیشتر است.
                 if (err && (err as any).response?.status === 401) {
                     setError('نشست کاربری منقضی شده است. لطفا مجدداً وارد شوید.');
-                    // navigate('/login'); // اگرچه ProtectedRoute این را هندل می‌کند، بهتر است اینجا فقط خطا نمایش داده شود.
                 } else {
                     setError('خطا در دریافت لیست پروژه‌ها. (اتصال API را بررسی کنید)');
                 }
@@ -54,10 +53,8 @@ const DashboardPage: React.FC = () => {
     return (
         <div className="p-6 bg-gray-50 min-h-full">
             <header className="flex justify-between items-center pb-6 border-b border-gray-200 mb-8">
-                {/* 💡 استفاده از کلاس‌های Tailwind برای سایز و فونت */}
                 <h1 className="text-3xl font-extrabold text-gray-900">داشبورد پروژه‌ها</h1>
                 
-                {/* 💡 اتصال دکمه به مسیر ایجاد پروژه و استفاده از کلاس‌های Tailwind */}
                 <button 
                     onClick={handleCreateNewProject}
                     className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition duration-150 transform hover:scale-105"
@@ -66,14 +63,12 @@ const DashboardPage: React.FC = () => {
                 </button>
             </header>
 
-            {/* 💡 نمایش کارت‌های پروژه */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {projects.length > 0 ? (
                     projects.map(project => (
                         <ProjectCard key={project.id} project={project} />
                     ))
                 ) : (
-                    // 💡 پیام نمایش داده شده در صورت عدم وجود پروژه
                     <p className="col-span-full text-center text-gray-500 p-10 border border-dashed rounded-lg bg-white shadow-sm">
                         هیچ پروژه‌ای یافت نشد. اولین پروژه خود را ایجاد کنید!
                     </p>

@@ -1,7 +1,8 @@
 // src/services/auth.service.ts
 
 import axios from 'axios';
-import type { User } from '../types/models';
+// 💡 حذف شده: دیگر نیازی به این خط نیست چون Type ها Global هستند.
+// import { User } from '../types/models.ts'; 
 
 // ⚠️⚠️ این آدرس را با آدرس نهایی بک‌اند (Render URL) خود جایگزین کنید!
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1'; 
@@ -12,13 +13,13 @@ export const AuthService = {
     getToken: (): string | null => localStorage.getItem('token'),
     
     // ۱. متد Login
+    // (Type User اکنون Global است)
     login: async (email: string, password: string): Promise<User> => {
         const response = await API.post('/auth/login', { email, password });
         const { token, user } = response.data;
 
         if (token) {
             localStorage.setItem('token', token);
-            // توکن را در هدر دیفالت Axios تنظیم کنید تا نیازی به پاس دادن مکرر نباشد
             API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
 
