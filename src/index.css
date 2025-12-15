@@ -1,4 +1,23 @@
 /* src/index.css */
+
+/* 1. تعریف فونت در ابتدای فایل */
+@font-face {
+  font-family: 'IRANSansX';
+  src: url('./fonts/IRANSansX.woff2') format('woff2'), /* ✅ فرض می‌کنیم فایل در پوشه src/fonts است */
+       url('./fonts/IRANSansX.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; 
+}
+@font-face {
+  font-family: 'IRANSansX';
+  src: url('./fonts/IRANSansX-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. دستورات Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
