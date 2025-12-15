@@ -1,14 +1,15 @@
+// src/services/api.ts
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'https://project-dashboard-backend-0wdl.onrender.com/api/v1', // آدرس Backend
-  headers: { 'Content-Type': 'application/json' },
+export const api = axios.create({
+  baseURL: 'https://project-dashboard-backend-0wdl.onrender.com/api/v1',
 });
 
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token'); // JWT Token
-  if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
+// 🔐 اضافه کردن توکن به همه درخواست‌ها
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
-
-export default api;
