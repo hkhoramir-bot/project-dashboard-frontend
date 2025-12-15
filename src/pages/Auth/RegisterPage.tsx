@@ -5,17 +5,21 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthService } from '../../services/auth.service';
 
 const RegisterPage: React.FC = () => {
+    // role: 'USER' به عنوان نقش پیش فرض
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'USER' });
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await AuthService.register(formData.name, formData.email, formData.password, formData.role);
+            // ✅ اصلاح کلیدی: ارسال شیء formData به صورت کامل به متد register
+            await AuthService.register(formData); 
+            
             alert('ثبت‌نام با موفقیت انجام شد. حالا وارد شوید.');
             navigate('/login');
         } catch (err) {
-            alert('خطا در ثبت‌نام');
+            console.error('Registration Error:', err); // بهتر است خطا را لاگ کنیم
+            alert('خطا در ثبت‌نام. (اطلاعات را بررسی کنید یا ممکن است ایمیل تکراری باشد.)');
         }
     };
 
