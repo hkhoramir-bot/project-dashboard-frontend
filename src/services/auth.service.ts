@@ -1,52 +1,66 @@
 import axios from 'axios';
 
-// آدرس پایه بک‌اند Render شما
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1';
-const API = axios.create({ baseURL: BASE_URL });
+
+const API = axios.create({ 
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
+
+// ✅ حل مشکل اصلی: اضافه کردن Interceptor برای ارسال خودکار توکن در هر درخواست
+API.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+// ✅ مدیریت خودکار خطای ۴۰۱ (اگر توکن منقضی شد، کاربر را به لاگین بفرست)
+API.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            AuthService.logout();
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const AuthService = {
-  
-  // === متد جدید: ثبت نام (REGISTER) ===
-  register: async (dto: { name: string; email: string; password: string; role: string }) => {
-    // ارسال درخواست POST به مسیر /auth/register
-    const response = await API.post('/auth/register', dto); 
-    // بک‌اند (NestJS) پس از ثبت نام، اطلاعات کاربر را برمی‌گرداند
-    return response.data;
-  },
+    register: async (dto: { name: string; email: string; password: string; role: string }) => {
+        const response = await API.post('/auth/register', dto);
+        return response.data;
+    },
 
-  // === متد موجود: ورود (LOGIN) ===
-  login: async (dto: { email: string; password: string }) => {
-    const response = await API.post('/auth/login', dto);
+    login: async (dto: { email: string; password: string }) => {
+        const response = await API.post('/auth/login', dto);
+        const { access_token, user } = response.data;
 
-    const { access_token, user } = response.data;
+        if (access_token) {
+            localStorage.setItem('token', access_token);
+            localStorage.setItem('user', JSON.stringify(user));
+        }
 
-    // ❗ اگر بک توکن نداد، خطا بده
-    if (!access_token) {
-      throw new Error('Login failed: no token received');
-    }
+        return { access_token, user };
+    },
 
-    // ✅ ذخیره قطعی
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
+    logout: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    },
 
-    // ✅ ست هدر برای درخواست‌های بعدی
-    API.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+    getToken: () => localStorage.getItem('token'),
 
-    return { access_token, user };
-  },
-
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    delete API.defaults.headers.common.Authorization;
-  },
-
-  getToken: () => localStorage.getItem('token'),
-
-  getCurrentUser: () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
+    getCurrentUser: () => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    },
 };
 
 export default API;

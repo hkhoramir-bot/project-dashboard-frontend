@@ -1,12 +1,15 @@
-// tailwind.config.cjs
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"IRANSansX"', 'sans-serif'], // تنظیم ایران سنس به عنوان فونت اصلی
+      },
+    },
   },
   plugins: [],
-};
+}
