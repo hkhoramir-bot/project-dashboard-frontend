@@ -4,31 +4,33 @@ const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1';
 const API = axios.create({ baseURL: BASE_URL });
 
 export const AuthService = {
-  getToken: (): string | null => localStorage.getItem('token'),
-
   login: async (dto: { email: string; password: string }) => {
     const response = await API.post('/auth/login', dto);
+
     const { access_token, user } = response.data;
 
-    if (access_token) {
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      API.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+    // ❗ اگر بک توکن نداد، خطا بده
+    if (!access_token) {
+      throw new Error('Login failed: no token received');
     }
 
-    return { access_token, user };
-  },
+    // ✅ ذخیره قطعی
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
 
-  register: async (dto: { name: string; email: string; password: string; role?: string }) => {
-    const response = await API.post('/auth/register', dto);
-    return response.data;
+    // ✅ ست هدر برای درخواست‌های بعدی
+    API.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+
+    return { access_token, user };
   },
 
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    delete API.defaults.headers.common['Authorization'];
+    delete API.defaults.headers.common.Authorization;
   },
+
+  getToken: () => localStorage.getItem('token'),
 
   getCurrentUser: () => {
     const user = localStorage.getItem('user');
