@@ -1,5 +1,4 @@
 // src/services/project.service.ts
-
 import axios from 'axios';
 
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1';
@@ -16,17 +15,17 @@ API.interceptors.request.use((config) => {
 });
 
 export const ProjectService = {
-  getProjects: async (): Promise<any[]> => {
+  getProjects: async () => {  // ✅ type annotation حذف شد
     const response = await API.get('/projects');
     return response.data;
   },
 
-  getProjectById: async (id: number): Promise<any> => {
+  getProjectById: async (id) => {  // ✅ type annotation حذف شد
     const response = await API.get(`/projects/${id}`);
     return response.data;
   },
 
-  createProject: async (dto: any): Promise<any> => {
+  createProject: async (dto) => {  // ✅ type annotation حذف شد
     const response = await API.post('/projects', dto);
     return response.data;
   }
