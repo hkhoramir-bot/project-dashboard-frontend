@@ -1,5 +1,8 @@
+// src/pages/Auth/LoginPage.tsx
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// ✅ اصلاح شد: Link به ایمپورت‌ها اضافه شد
+import { useNavigate, Link } from 'react-router-dom'; 
 import { AuthService } from '../../services/auth.service';
 
 const LoginPage: React.FC = () => {
@@ -18,12 +21,11 @@ const LoginPage: React.FC = () => {
       const result = await AuthService.login({ email, password });
 
       if (result.access_token) {
-        navigate('/', { replace: true }); // ✅ هدایت به داشبورد
+        navigate('/', { replace: true }); 
       } else {
         setError('ایمیل یا رمز عبور اشتباه است.');
       }
     } catch (err) {
-      // این خطا معمولاً 401 است که در Interceptor مدیریت می‌شود، اما برای سایر خطاها
       const errorMessage = (err as any).response?.data?.message || 'خطا در ورود به سیستم. (اتصال اینترنت را بررسی کنید)';
       setError(errorMessage);
     } finally {
@@ -78,6 +80,7 @@ const LoginPage: React.FC = () => {
 
         <p className="mt-8 text-center text-gray-500">
           حساب کاربری ندارید؟ 
+          {/* ✅ اینجا از Link استفاده شده است */}
           <Link 
             to="/register" 
             className="text-indigo-600 font-bold hover:underline mr-1"
