@@ -1,29 +1,37 @@
-// src/services/project.service.ts (اصلاح شده)
+// src/services/project.service.ts (تأکید بر Named Export)
 
 import axios from 'axios';
+// import { Project } from '../types/models'; // فرض بر وجود نوع Project
 
-// ✅ تعریف Type ساده DTO برای CreateProject
-interface CreateProjectDto {
-    name: string;
-    description: string;
-    startDate: string; // انتظار رشته تاریخ (از input type="date")
-    endDate: string;
-}
-
-// ⚠️ مطمئن شوید که BASE_URL شما به درستی به /api/v1 ختم شود
+// ⚠️ این آدرس را چک کنید. اگر در NestJS از Global Prefix استفاده می‌کنید، نیازی به /api/v1 نیست.
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1'; 
 
 const API = axios.create({ baseURL: BASE_URL });
-// ... [بخش Interceptors بدون تغییر] ...
 
+// افزودن Interceptors برای توکن (همانند قبل)
+API.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers = config.headers ?? {};
+        config.headers.Authorization = `Bearer ${token}`; 
+    }
+    return config;
+});
+
+// ✅ توجه: همه متدها به عنوان Named Export از یک شیء خارج می‌شوند
 export const ProjectService = {
-    // ... [getProjects و getProjectById بدون تغییر] ...
+    getProjects: async (): Promise<any[]> => { // برای سادگی از any[] استفاده می‌کنم
+        const response = await API.get('/projects');
+        return response.data;
+    },
 
-    // ۳. ایجاد پروژه جدید
-    createProject: async (dto: CreateProjectDto): Promise<any> => { 
-        // ✅ ارسال DTO به صورت مستقیم
-        // این کار خطای 404 یا 500 ناشی از فرمت تاریخ را برطرف می‌کند
-        const response = await API.post('/projects', dto); 
-        return response.data; 
+    getProjectById: async (id: number): Promise<any> => {
+        const response = await API.get(`/projects/${id}`);
+        return response.data;
+    },
+
+    createProject: async (dto: any): Promise<any> => {
+        const response = await API.post('/projects', dto);
+        return response.data;
     }
 };
