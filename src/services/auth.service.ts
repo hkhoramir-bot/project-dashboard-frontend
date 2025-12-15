@@ -1,9 +1,20 @@
 import axios from 'axios';
 
+// آدرس پایه بک‌اند Render شما
 const BASE_URL = 'https://project-dashboard-backend-0wdl.onrender.com/api/v1';
 const API = axios.create({ baseURL: BASE_URL });
 
 export const AuthService = {
+  
+  // === متد جدید: ثبت نام (REGISTER) ===
+  register: async (dto: { name: string; email: string; password: string; role: string }) => {
+    // ارسال درخواست POST به مسیر /auth/register
+    const response = await API.post('/auth/register', dto); 
+    // بک‌اند (NestJS) پس از ثبت نام، اطلاعات کاربر را برمی‌گرداند
+    return response.data;
+  },
+
+  // === متد موجود: ورود (LOGIN) ===
   login: async (dto: { email: string; password: string }) => {
     const response = await API.post('/auth/login', dto);
 
