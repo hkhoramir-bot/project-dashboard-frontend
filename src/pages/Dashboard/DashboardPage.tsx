@@ -1,4 +1,4 @@
-// src/pages/Dashboard/DashboardPage.tsx
+// src/pages/Dashboard/DashboardPage.tsx (بدون تغییر عمده)
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProjectService } from '../../services/project.service';
@@ -16,7 +16,8 @@ const DashboardPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="p-8 bg-slate-50 min-h-screen font-sans rtl" dir="rtl">
+        // این محتوا درون DashboardLayout قرار می‌گیرد
+        <div className="p-8 bg-slate-50 min-h-full font-sans rtl" dir="rtl"> 
             <header className="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm mb-10 gap-4 border border-gray-100">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900">میز کار من</h1>

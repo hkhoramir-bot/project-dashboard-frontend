@@ -1,67 +1,94 @@
 // src/layouts/MainLayout.tsx
 
 import React from 'react';
-import { FaTachometerAlt, FaTasks, FaRegCalendarAlt, FaUsers, FaChartLine, FaSignOutAlt } from 'react-icons/fa';
-import NavLink from '../components/ui/NavLink';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/auth.service';
-import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FolderCanvas, User, LogOut, Plus } from 'lucide-react'; 
+// نیاز به نصب آیکون‌ها: npm install lucide-react
 
-interface MainLayoutProps {
-    children: React.ReactNode;
-}
+// تعریف لینک‌های منوی کناری
+const SidebarLinks = [
+    { name: "داشبورد", to: "/", icon: LayoutDashboard },
+    { name: "پروژه‌ها", to: "/projects", icon: FolderCanvas },
+    { name: "اعضای تیم", to: "/team", icon: User },
+    // می‌توانید لینک‌های بیشتری اضافه کنید...
+];
 
-const Sidebar: React.FC = () => {
+const MainLayout: React.FC = () => {
     const navigate = useNavigate();
+    const user = AuthService.getCurrentUser();
 
+    // هندل خروج کاربر
     const handleLogout = () => {
         AuthService.logout();
         navigate('/login');
     };
 
     return (
-        <div className="flex flex-col h-full p-4 bg-gray-800 text-white w-64 fixed right-0 top-0 bottom-0 shadow-2xl">
-            <div className="text-2xl font-bold text-indigo-400 mb-8 mt-2">
-                پنل مدیریت پروژه
-            </div>
-            
-            <nav className="space-y-2 flex-grow">
-                <NavLink to="/" icon={<FaTachometerAlt />}>داشبورد</NavLink>
-                <NavLink to="/projects" icon={<FaTasks />}>پروژه‌ها</NavLink>
-                <NavLink to="/timeline" icon={<FaRegCalendarAlt />}>زمان‌بندی</NavLink>
-                <NavLink to="/team" icon={<FaUsers />}>مدیریت تیم</NavLink>
-                <NavLink to="/reports" icon={<FaChartLine />}>گزارش‌ها</NavLink>
-            </nav>
-
-            <button 
-                onClick={handleLogout}
-                className="flex items-center p-3 text-base rounded-lg transition-colors duration-200 text-gray-400 hover:bg-red-700 hover:text-white mt-4"
-            >
-                <FaSignOutAlt className="ml-3 text-xl" />
-                <span className="font-medium text-sm">خروج</span>
-            </button>
-        </div>
-    );
-};
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-    return (
-        <div className="flex h-screen bg-gray-50 rtl">
-            {/* نوار کناری ثابت */}
-            <Sidebar />
-
-            {/* ناحیه محتوای اصلی */}
-            {/* w-full و pr-64 برای ایجاد فضای خالی به اندازه سایدبار است */}
-            <main className="flex-grow pr-64 overflow-y-auto">
-                {/* هدر ساده */}
-                <header className="bg-white shadow-sm p-4 flex justify-end items-center border-b border-gray-200">
-                    <span className="text-gray-700 text-sm">سلام، مدیر پروژه!</span>
-                </header>
+        <div className="flex min-h-screen bg-slate-50 font-sans rtl" dir="rtl">
+            {/* 🚪 نوار کناری (Sidebar) */}
+            <aside className="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl sticky top-0 h-screen">
                 
-                {/* محتوای واقعی صفحات */}
-                <div className="p-6">
-                    {children}
+                <div className="p-6 text-2xl font-black text-white border-b border-indigo-800">
+                    Project Dashboard
                 </div>
-            </main>
+                
+                <nav className="flex-1 mt-4 px-4 space-y-2">
+                    {SidebarLinks.map((item) => (
+                        <Link 
+                            key={item.name}
+                            to={item.to}
+                            className="flex items-center gap-3 p-3 rounded-xl text-indigo-100 hover:bg-indigo-800 transition-colors duration-200"
+                        >
+                            <item.icon size={20} />
+                            <span className="font-medium">{item.name}</span>
+                        </Link>
+                    ))}
+                    
+                    {/* دکمه ایجاد پروژه */}
+                    <button 
+                        onClick={() => navigate('/projects/new')}
+                        className="w-full mt-4 flex items-center justify-center gap-2 p-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-600 transition-all shadow-md"
+                    >
+                        <Plus size={20} />
+                        پروژه جدید
+                    </button>
+                </nav>
+
+                {/* دکمه خروج */}
+                <button 
+                    onClick={handleLogout}
+                    className="m-4 flex items-center gap-3 p-3 text-red-300 hover:bg-red-900/30 rounded-xl transition"
+                >
+                    <LogOut size={20} />
+                    <span>خروج از حساب</span>
+                </button>
+            </aside>
+
+            {/* 🌐 محتوای اصلی (Main Content) */}
+            <div className="flex-1 flex flex-col overflow-x-hidden">
+                
+                {/* ⏫ هدر (Header) */}
+                <header className="bg-white shadow-sm p-4 flex justify-end items-center px-8 border-b border-gray-200 sticky top-0 z-10">
+                    <div className="flex items-center gap-4">
+                        <span className="text-gray-600 text-sm">
+                            {user?.name} 
+                            <span className="bg-indigo-100 text-indigo-700 px-3 py-1 mr-2 rounded-full text-xs font-medium">
+                                {user?.role === 'ADMIN' ? 'مدیر ارشد' : 'عضو تیم'}
+                            </span>
+                        </span>
+                        <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            {user?.name?.charAt(0) || 'U'}
+                        </div>
+                    </div>
+                </header>
+
+                {/* ⬇️ محتوای صفحه (DashboardPage, CreateProjectPage, etc.) */}
+                <main className="flex-1 p-0">
+                    {/* Outlet کامپوننت فرعی (مثل DashboardPage) را در اینجا رندر می‌کند */}
+                    <Outlet />
+                </main>
+            </div>
         </div>
     );
 };
