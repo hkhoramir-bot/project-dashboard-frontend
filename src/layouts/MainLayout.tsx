@@ -3,13 +3,14 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/auth.service';
-import { LayoutDashboard, FolderCanvas, User, LogOut, Plus } from 'lucide-react'; 
-// نیاز به نصب آیکون‌ها: npm install lucide-react
+// ✅ اصلاح شد: FolderCanvas به Folder تغییر کرد
+import { LayoutDashboard, Folder, User, LogOut, Plus } from 'lucide-react'; 
 
 // تعریف لینک‌های منوی کناری
 const SidebarLinks = [
     { name: "داشبورد", to: "/", icon: LayoutDashboard },
-    { name: "پروژه‌ها", to: "/projects", icon: FolderCanvas },
+    // ✅ استفاده از آیکون صحیح: Folder
+    { name: "پروژه‌ها", to: "/projects", icon: Folder }, 
     { name: "اعضای تیم", to: "/team", icon: User },
     // می‌توانید لینک‌های بیشتری اضافه کنید...
 ];
@@ -21,7 +22,7 @@ const MainLayout: React.FC = () => {
     // هندل خروج کاربر
     const handleLogout = () => {
         AuthService.logout();
-        navigate('/login');
+        // نیازی به navigate نیست، چون logout خودش window.location.href = '/login' را اجرا می‌کند
     };
 
     return (
@@ -85,7 +86,6 @@ const MainLayout: React.FC = () => {
 
                 {/* ⬇️ محتوای صفحه (DashboardPage, CreateProjectPage, etc.) */}
                 <main className="flex-1 p-0">
-                    {/* Outlet کامپوننت فرعی (مثل DashboardPage) را در اینجا رندر می‌کند */}
                     <Outlet />
                 </main>
             </div>
