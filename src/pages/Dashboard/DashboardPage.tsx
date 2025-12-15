@@ -1,75 +1,62 @@
-// src/pages/Dashboard/DashboardPage.tsx (با هندلینگ خطای بهتر)
+// src/pages/Dashboard/DashboardPage.tsx
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ProjectService } from '../../services/project.service';
-import ProjectCard from '../../components/ProjectCard';
+// ✅ اصلاح شد: از Named Import استفاده کنید
+import { ProjectService } from '../../services/project.service'; 
+// import { Project } from '../../types/models'; // فرض بر وجود این نوع داده است
 
 const DashboardPage: React.FC = () => {
-    const [projects, setProjects] = useState<any[]>([]);
+    // ... (وضعیت‌های state) ...
+    const [projects, setProjects] = useState<Project[]>([]); // فرض بر تعریف نوع Project
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null); // ✅ اضافه کردن State خطا
-    const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        ProjectService.getProjects()
-            .then(data => {
+        const fetchProjects = async () => {
+            try {
+                // ✅ اکنون ProjectService.getProjects یک تابع قابل فراخوانی است
+                const data = await ProjectService.getProjects(); 
                 setProjects(data);
-                setError(null); // در صورت موفقیت، خطا را پاک کن
-            })
-            .catch(err => {
+                setError(null);
+            } catch (err) {
+                // با توجه به خطاهای 500 قبلی، اینجا بهتر است پیام خطا نمایش داده شود
+                setError('خطا در بارگذاری پروژه‌ها. (سرور 500 یا 401). لطفا بک‌اند را بررسی کنید.');
                 console.error("Error fetching projects:", err);
-                // 💡 پیام خطا را برای کاربر شفاف می‌کنیم
-                setError('متأسفانه، سرور قادر به ارائه پروژه‌ها نیست. (خطای 500 سرور)');
-            })
-            .finally(() => setLoading(false));
-    }, []);
-    
-    // ... محتوای قبلی: loading و error ...
-    if (loading) {
-        return <div className="p-8"><div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-600"></div></div></div>;
-    }
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // ✅ نمایش خطا
-    if (error) {
-        return (
-            <div className="p-8">
-                <div className="p-6 bg-red-100 border border-red-400 text-red-700 rounded-xl text-center max-w-xl mx-auto mt-10">
-                    <h3 className="font-bold text-lg mb-2">خطای بحرانی در ارتباط با سرور</h3>
-                    <p>{error}</p>
-                    <p className="mt-2 text-sm">لطفاً وضعیت سرویس Render خود را بررسی کنید.</p>
-                </div>
-            </div>
-        );
-    }
-    
-    // ... رندر اصلی Dashboard ...
+        fetchProjects();
+    }, []);
+
+    if (loading) return (
+        <div className="p-8 text-center text-indigo-600">در حال بارگذاری...</div>
+    );
+    if (error) return (
+        <div className="p-8 m-8 bg-red-100 text-red-700 rounded-xl border border-red-200">
+            {error}
+        </div>
+    );
+
     return (
-        <div className="p-8 bg-slate-50 min-h-full font-sans rtl" dir="rtl">
-            <header className="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm mb-10 gap-4 border border-gray-100">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900">میز کار من</h1>
-                    <p className="text-gray-500 mt-1">مدیریت و نظارت بر پروژه‌های فعال</p>
-                </div>
-                <button 
-                    onClick={() => navigate('/projects/new')}
-                    className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all transform hover:-translate-y-1"
-                >
-                    + تعریف پروژه جدید
-                </button>
-            </header>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {projects.length > 0 ? (
-                    projects.map(p => <ProjectCard key={p.id} project={p} />)
-                ) : (
-                    <div className="col-span-full bg-white border-2 border-dashed border-gray-200 rounded-3xl p-16 text-center">
-                        <div className="text-6xl mb-4">📂</div>
-                        <p className="text-xl text-gray-400 font-bold">هنوز هیچ پروژه‌ای ثبت نکرده‌اید</p>
-                    </div>
-                )}
+        <div className="p-8 font-sans rtl" dir="rtl">
+            <h1 className="text-3xl font-black text-gray-900 mb-6">داشبورد پروژه‌ها</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map(project => (
+                    <ProjectCard key={project.id} project={project} />
+                ))}
             </div>
+            {projects.length === 0 && (
+                <div className="text-center p-10 bg-white rounded-xl shadow-lg mt-8">
+                    <p className="text-gray-500">پروژه‌ای برای نمایش وجود ندارد. با کلیک بر روی 'ایجاد پروژه' شروع کنید.</p>
+                </div>
+            )}
         </div>
     );
 };
+
+// ⚠️ نیاز به ایمپورت ProjectCard در اینجا
+import ProjectCard from '../../components/ProjectCard';
+
 export default DashboardPage;
